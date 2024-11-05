@@ -19,7 +19,7 @@
        <table>
          <tr>
            <td>아이디</td>
-           <td><input type="text" name="userid"  value="Dabin" /></td>
+           <td><input type="text" name="userid"  value="sky" /></td>
          </tr>
          <tr>
            <td>암호</td>

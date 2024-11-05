@@ -19,5 +19,9 @@ public interface BoardPagingMapper {
 	BoardVo getBoard(BoardVo boardVo);
 
 	void insertBoard(BoardVo boardVo);
+
+	void deleteBoard(BoardVo boardVo);
+
+	void updateBoard(BoardVo boardVo);
 	
 }

@@ -90,9 +90,7 @@
        }    
        
        const  formEl       = document.querySelector('form');
-
-
-       const  companyIdEl     = document.querySelector('[name=userid]');
+       const  useridEl     = document.querySelector('[name=userid]');
        const  passwd1El    = document.querySelector('#passwd1');
        const  passwd2El    = document.querySelector('#passwd2');
        const  usernameEl   = document.querySelector('[name=username]');

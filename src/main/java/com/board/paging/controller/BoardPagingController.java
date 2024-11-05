@@ -16,6 +16,8 @@ import com.board.paging.vo.Pagination;
 import com.board.paging.vo.PagingResponse;
 import com.board.paging.vo.SearchVo;
 
+import jakarta.websocket.Session;
+
 @Controller
 @RequestMapping("/BoardPaging")
 public class BoardPagingController {
@@ -115,47 +117,61 @@ public class BoardPagingController {
 	}
 	
 	@RequestMapping("/WriteForm")
-	public  ModelAndView  writeForm( BoardVo boardVo, int nowpage ) {
-		// 메뉴목롤 조회
-		List<MenuVo>  menuList = menuMapper.getMenuList();
- 		
-		ModelAndView  mv  = new ModelAndView();
-		mv.addObject("menuList",menuList);
-		mv.addObject("boardVo", boardVo);
-		mv.addObject("nowpage", nowpage);
-		mv.setViewName("boardpaging/write");
-		return        mv;
-	}
-	
-	// /Board/Write
-	// menu_id, title, writer, content
-	@RequestMapping("/Write")
-	public  ModelAndView   write( int nowpage,  BoardVo boardVo ) {
+	public ModelAndView WriteForm(String nowpage, BoardVo boardVo) {
+		ModelAndView mv = new ModelAndView();
+		List<MenuVo> menuList = menuMapper.getMenuList();
 		
-		boardPagingMapper.insertBoard(boardVo);
-		// 굴쓰기
-		ModelAndView  mv  =  new ModelAndView();
-		String  fmt = "redirect:/BoardPaging/List?menu_id=%s&nowpage=%d";
-		String   loc = String.format(fmt, menu_id, nowpage);
-        mv.setViewName(loc);
-        
-		return        mv;
+		mv.addObject("menuList", menuList);
+		mv.addObject("nowpage", nowpage);
+		mv.addObject("boardVo", boardVo);
+		//System.out.println("============"+boardVo);
+		mv.setViewName("/boardpaging/write");
+		return mv;
 	}
 	
+	@RequestMapping("/Write")
+	public ModelAndView Write(String nowpage, BoardVo boardVo) {
+		boardPagingMapper.insertBoard(boardVo);
+		
+		String menu_id = boardVo.getMenu_id();
+		ModelAndView mv = new ModelAndView();
+		//List?nowpage=1&menu_id=MENU01
+		mv.setViewName("redirect:/BoardPaging/List?nowpage="+nowpage+"&menu_id="+menu_id);
+		return mv;
+	}
 	
+	//http://localhost:9090/BoardPaging/Delete?idx=1007&menu_id=MENU01&nowpage=1
+	@RequestMapping("/Delete")
+	public ModelAndView delete(String nowpage, BoardVo boardVo) {
+		boardPagingMapper.deleteBoard(boardVo);
+		
+		ModelAndView mv = new ModelAndView();
+		mv.setViewName("redirect:/BoardPaging/List?nowpage="+nowpage+"&menu_id="+boardVo.getMenu_id());
+		return mv;
+	}
+	
+	///BoardPaging/UpdateForm?idx=${vo.idx}&menu_id=${vo.menu_id}&nowpage=${nowpage}
+	@RequestMapping("/UpdateForm")
+	public ModelAndView updateForm(BoardVo BoardVo, String nowpage) {
+		List<MenuVo> menuList = menuMapper.getMenuList();
+		BoardVo vo = boardPagingMapper.getBoard(BoardVo);
+		
+		ModelAndView mv = new ModelAndView();
+		mv.addObject("menuList", menuList);
+		mv.addObject("vo", vo);
+		mv.addObject("nowpage", nowpage);
+		mv.setViewName("/boardpaging/update");
+		
+		return mv;
+	}
+	
+	@RequestMapping("Update")
+	public ModelAndView update(BoardVo boardVo, String nowpage) {
+		boardPagingMapper.updateBoard(boardVo);
+		
+		ModelAndView mv = new ModelAndView();
+		mv.setViewName("redirect:/BoardPaging/List?nowpage="+nowpage+"&menu_id="+boardVo.getMenu_id());
+		
+		return mv;
+	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

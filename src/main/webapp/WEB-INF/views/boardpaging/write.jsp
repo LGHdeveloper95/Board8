@@ -51,9 +51,10 @@
   <main>  
     <%@include file="/WEB-INF/include/pagingmenus.jsp" %>
    
-    <h2>게시글 등록(${ menu_id })</h2>
+    <h2>게시글 등록(${ boardVo.menu_id })</h2>
     <form action="/BoardPaging/Write"  method="POST">
-    <input type="hidden"  name="menu_id"  value="${ menu_id }" /> 
+    <input type="hidden"  name="menu_id"  value="${ boardVo.menu_id }" />
+    <!-- param으로도 넘어와서 param.menu_id도 됨 -->
     <input type="hidden"  name="nowpage"  value="${ nowpage }" /> 
     <table id="table">
      <tr>
@@ -65,7 +66,7 @@
      <tr>
       <td><span class="red">*</span>작성자 이름</td>
       <td><input type="text" name="writer" 
-           id="writer" value="${ login.userid }" /></td>
+           id="writer" value="${ login.userid }" readonly/></td>
      </tr>
      <tr>
       <td>내용</td>
@@ -85,14 +86,13 @@
         
        const  goListEl = document.getElementById('goList')
        goListEl.onclick = function() {
-          location.href = '/BoardPaging/List?menu_id=${ menu_id }&nowpage=${nowpage}' 
+          location.href = '/BoardPaging/List?menu_id=${ menu_id }&nowpage=${ nowpage }' 
        }    
        
        const  formEl       = document.querySelector('form');
        const  titleEl      = document.querySelector('#title');
        const  writerEl     = document.querySelector('#writer');
        
-       // 회원가입버튼 클릭
        formEl.onsubmit   = function () {           
 		   if(  titleEl.value.trim() == ''  ) {
                alert('제목을 입력하세요')
@@ -111,18 +111,3 @@
   </main>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

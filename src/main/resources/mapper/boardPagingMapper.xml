@@ -63,36 +63,33 @@
 	    BOARD
 	WHERE 
 	    IDX  =   #{ idx  }
-  
-     
    </select>
- 
+   
+   <insert id="insertBoard">
+     INSERT INTO BOARD (
+	    IDX,
+	    MENU_ID,
+	    TITLE,
+	    CONTENT,
+	    WRITER
+	) VALUES (
+	    ( SELECT NVL(MAX(IDX), 0)+1  FROM  BOARD ),
+	    #{ menu_id },
+	    #{ title   },
+	    #{ content },
+	    #{ writer  } 
+	) 
+   </insert>
+   
+   <delete id="deleteBoard">
+     DELETE
+      FROM BOARD
+      WHERE IDX = #{ idx }
+   </delete>
+   
+   <update id="updateBoard">
+     UPDATE BOARD
+      SET TITLE = #{ title }, CONTENT = #{ content }
+      WHERE IDX = #{ idx }
+   </update>
 </mapper>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

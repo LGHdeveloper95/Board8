@@ -7,9 +7,6 @@
 <title>Insert title here</title>
 <link rel="icon" type="image/png" href="/img/favicon.png" />
 <link rel="stylesheet"  href="/css/common.css" />
-<style>
-   
-</style>
 </head>
 <body>
   <main>
@@ -31,9 +28,14 @@
 	<div><a href="/BoardPaging/WriteForm?nowpage=1&menu_id=MENU01">게시물 추가(페이징)</a></div>
 	<div>&nbsp;</div>
 	
+	<div><a href="/Pds/List?nowpage=1&menu_id=MENU01">자료실 목록</a></div>
+	<div><a href="/Pds/WriteForm?nowpage=1&menu_id=MENU01">자료실 등록</a></div>
+	<div>&nbsp;</div>
+	
 	<div>
 	   ${ sessionScope.login.username } 님 환영합니다<br>
 	   당신의 가입일은 ${ sessionScope.login.regdate } 입니다<br>
+	   당신의 포인트는 ${ sessionScope.login.upoint } 입니다<br>
 	   <a href="/Users/Logout">로그아웃</a>	
 	</div>
   </main>	 
