@@ -19,7 +19,7 @@
     AND ${ search } LIKE  '%' || #{ searchtext } || '%'
     AND title LIKE  '%' || '파일' || '%' 
   -->
-   
+   <!--  자료실 목록조회 -->
   <select id="getPdsList" >
   
   	SELECT
@@ -52,7 +52,8 @@
   	 OFFSET #{ offset } ROWS FETCH NEXT #{ recordSize } ROWS ONLY   
   
   </select>
-  
+    
+    <!-- 글저장 -->
   <insert  id="setWrite">
     INSERT INTO BOARD (
 	    IDX,
@@ -73,8 +74,9 @@
 	)
   </insert>
   
-  <insert  id="setFileWriter">
   
+    <!-- Files정보저장  -->
+  <insert  id="setFileWriter">
     <foreach  collection="fileList"  item = "file"
        index      =  "i"
        open       =  "INSERT ALL"
@@ -87,22 +89,22 @@
           #{ file.fileext   },
           #{ file.sfilename }
        )       
-           
     </foreach>
-  
   </insert>
   
-  <update id="setReadcountUpdate">
   
+  
+
+  <!-- 조회수 증가 -->  
+  <update id="setReadcountUpdate">
     UPDATE BOARD
     SET    HIT  = HIT +1
     WHERE  IDX  = #{ idx }
-  
   </update>
   
   
+    <!-- 자료실 글 내용보기 -->
   <select id="getPds">
-  
   SELECT 
      IDX
     ,MENU_ID
@@ -116,11 +118,11 @@
    BOARD 
   WHERE 
     IDX = #{ idx }
-  
-  
   </select>
  
  
+ 
+ <!-- 자료실 파일 목록 가져오기 -->
  <select id="getFileList">
  SELECT
     FILE_NUM,
@@ -134,6 +136,45 @@
    IDX = #{ idx }
   
  </select>
+   
+   
+   <!-- 자료실 수정 -->
+ <update id="setUpdate">
+   UPDATE BOARD
+   SET    TITLE = #{ title }
+         ,CONTENT = # { content }
+   WHERE  IDX = #{ idx }
+ </update>
+ 
+ 
+ <select id="getFileInfo">
+ 
+  SELECT
+       FILE_NUM
+       ,IDX
+       ,FILENAME
+       ,FILEEXT
+       ,SFILENAME
+  FROM
+    FILES
+  WHERE
+     FILE_NUM = #{ file_num }
+ 
+ </select>
+   
+  <insert id="updateFileWriter">
+     <foreach collection="fileList" item="file"
+       index="i" open="INSERT ALL" close="SELECT * FROM DUAL" separator=" ">
+	     INTO FILES VALUES (
+		      -- GET_FILENUM()
+		      (SELECT NVL(MAX(FILE_NUM),0) FROM FILES) + #{i} + 1
+		    , #{ idx }
+		    , #{ file.filename }
+		    , #{ file.fileext }
+		    , #{ file.sfilename }
+		)
+     </foreach>
+   </insert> 
    
 </mapper>
 

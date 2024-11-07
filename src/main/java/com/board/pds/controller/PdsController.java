@@ -1,11 +1,21 @@
 package com.board.pds.controller;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,9 +33,18 @@ import com.board.pds.service.PdsService;
 import com.board.pds.vo.FilesVo;
 import com.board.pds.vo.PdsVo;
 
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+
 @Controller
 @RequestMapping("/Pds")
 public class PdsController {
+	
+	@Value("${part4.upload-path}")
+	private String uploadPath;
 	
 	@Autowired
 	private  MenuMapper   menuMapper;
@@ -35,6 +54,8 @@ public class PdsController {
 	
 	@Autowired
 	private  PdsMapper    pdsMapper;
+
+	
 	
 	// /Pds/List?nowpage=1&menu_id=MENU01
 	@RequestMapping("/List")
@@ -156,11 +177,9 @@ public class PdsController {
 	    
 		// 조회할 자료실 게시물 정보 (idx)
 	    PdsVo pdsVo = pdsService.getPds(map);
-	    String content = pdsVo.getContent().replace("\n", "<br>");
+	    String content = pdsVo.getContent();
+	    content = content.replace("\n", "<br>");
 		pdsVo.setContent(content);
-
-	   
-	    
 	    
 		// 조회할  파일 정보
 		List<FilesVo> fileList = pdsService.getFileList(map);
@@ -172,11 +191,108 @@ public class PdsController {
 		mv.addObject("map", map );
 		mv.setViewName("pds/view");
 		return mv;
-		
+	}
+	
+	@RequestMapping("/UpdateForm")
+	public ModelAndView updateForm(
+	   @RequestParam HashMap<String, Object> map		
+			) {
+    // 메뉴목록
+	  List<MenuVo> menuList = menuMapper.getMenuList();
+	// 수정할 자료실 게시물 정보 (idx)
+	  PdsVo pdsVo = pdsService.getPds(map);
+	// 수정할  파일 정보
+	  List<FilesVo> fileList = pdsService.getFileList(map);
+	  
+	  ModelAndView mv = new ModelAndView();
+	  mv.addObject("menuList",menuList);
+	  mv.addObject("vo", pdsVo );
+	  mv.addObject("fileList", fileList );
+	  mv.addObject("map",map);
+	  mv.setViewName("pds/update");
+	  return mv;
 	}
     
+	@RequestMapping("/Update")
+	public ModelAndView update(
+	 @RequestParam HashMap<String, Object>	map,
+	 @RequestParam(value = "upfile")  MultipartFile [] uploadfiles ) {
+		System.out.println("1:" + map);
+		pdsService.setUpdate(map, uploadfiles);
+		System.out.println("2:" + map);
+		
+		ModelAndView mv = new ModelAndView();
+		String fmt = "redirect:/Pds/List?menu_id=%s&nowpage=%s";
+		String loc = String.format(fmt, 
+             map.get("menu_id"), map.get("nowpage") );
+		mv.setViewName( loc );
+		 return mv; 
+	
+	}
+	
+	//|----------------------------------------------------|\\
+	//|                   파일 다운로드                    |\\
+	//| 										           |\\
+	//| 										           |\\
+	//| 										           |\\
+	//|        서버에서 바이너리 데이터를다운받는다        |\\
+	//|----------------------------------------------------|\\
+    @GetMapping("/filedownload/{file_num}")
+    public void downloadFile(
+        HttpServletResponse res,
+        @PathVariable(value="file_num") Long file_num
+    		   ) throws UnsupportedEncodingException {
+    	 //파일조회
+         FilesVo fileInfo = pdsService.getFileInfo( file_num );
+    	
+    	//파일 경로  import nio.path
+    	Path saveFilepath = Paths.get(
+    			uploadPath 
+    			+ java.io.File.separator
+    			+ fileInfo 
+    			);
+    	 //http 헤더 설정
+	      setFileHeader(res, fileInfo);
+	      
+	      //파일 복사 -> 함수(서버 -> 클라이언트)
+	      fileCopy(res, saveFilepath);
+	      
+	   }
+
+	//파일복사 : 실제 바이너리 데이터를 다운로드 하는 기능
+	private void fileCopy(HttpServletResponse res, Path saveFilepath) {
+		FileInputStream fis = null;
+		try {
+			fis = new FileInputStream(saveFilepath.toFile());
+			FileCopyUtils.copy(fis, res.getOutputStream());
+			res.getOutputStream().flush(); //버퍼에 남아있는 데이터를 보냄
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				fis.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	//다운 받을 파일의 header 정보 설정
+	private void setFileHeader(HttpServletResponse res, FilesVo fileInfo) throws UnsupportedEncodingException {
+		   res.setHeader("Content-Disposition",
+				   "attachment; filename=\"" +
+		           URLEncoder.encode(
+	               (String) fileInfo.getFilename(), "UTF-8") + "\";");
+	        res.setHeader("Content-Transfer-Encoding", "binary");
+	        res.setHeader("Content-Type", "application/download; utf-8");
+	        res.setHeader("Pragma", "no-cache;");
+	        res.setHeader("Expires", "-1;");
+	}
 	
 }
+
 
 
 

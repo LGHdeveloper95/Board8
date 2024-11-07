@@ -85,6 +85,29 @@ public class PdsServiceImpl implements  PdsService {
 		return fileList;
 	}
 
+	@Override
+	public void setUpdate(HashMap<String, Object> map,
+			                  MultipartFile[] uploadfiles) {
+		
+		// 업로드된 파일 경로 -> map   /Users/leegh/dev/data
+		map.put("uploadPath", uploadPath );
+		//업로드된 파일을 폴더에 저장 -> 저장된 정보 -> map
+		PdsFile.save(map, uploadfiles);
+		// Files table 정보저장 <- map 정보이용
+		List<FilesVo> fileList = (List<FilesVo>) map.get("fileList");
+		if( fileList.size() > 0 )
+			pdsMapper.setFileWriter(map);
+		// Board 정보저장
+		pdsMapper.setUpdate(map);
+		
+	}
+
+	@Override
+	public FilesVo getFileInfo(Long file_num) {
+		FilesVo fileVo = pdsMapper.getFileInfo(file_num);
+		return fileVo;
+	}
+
 }
 
 

@@ -17,20 +17,11 @@ public class PdsVo {
 	private  String  writer;
 	private  String  regdate;
 	private  int     hit;
-	
 	// Files 자료 -> 파일수
 	private  int     filescount;
-	
 	// Menus 자료
 	private  String  menu_id;
 	private  String  menu_name;
 	private  int     menu_seq;
 	
-	
 }
-
-
-
-
-
-
