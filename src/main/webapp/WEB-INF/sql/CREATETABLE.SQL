@@ -37,17 +37,16 @@ INSERT INTO BOARD (IDX, MENU_ID, TITLE, CONTENT, WRITER)
    , 'MENU01', '반갑습니다', '인사드립니다', 'ADMIN');
 COMMIT;   
 
---멀티 게시판 자료실
-DROP TABLE FILES;
+-- 멀티게시판 자료실
 CREATE  TABLE  FILES
 (
-     FILE_NUM    NUMBER(6,0)    NOT NULL    -- 파일번호
+     FILE_NUM    NUMBER(6,0)    NOT NULL    -- 파일고유번호
    , IDX         NUMBER(6,0)    NOT NULL    -- 게시글 번호
    , FILENAME    VARCHAR2(300)  NOT NULL    -- 파일이름
    , FILEEXT     VARCHAR2(300)  NOT NULL    -- 파일확장자
    , SFILENAME   VARCHAR2(300)  NOT NULL    -- 저장된 실제 파일명
    
-   , CONSTRAINTS   FILES_PK       PRIMARY KEY   -- 기본키(복합키)
+   , CONSTRAINTS   FILES_PK     PRIMARY KEY   -- 기본기(복합키)
    (
        FILE_NUM,
        IDX
@@ -57,6 +56,15 @@ CREATE  TABLE  FILES
      REFERENCES   BOARD(IDX)
      ON  DELETE   CASCADE
 );
+
+
+
+
+
+
+
+
+
 
 
 

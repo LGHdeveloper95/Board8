@@ -13,6 +13,11 @@
 
 <style>
   
+  #searchbox {
+     width      : 400px;
+     margin     : 20px auto;
+  }
+  
   #table {
      td {
        padding : 10px;
@@ -20,10 +25,11 @@
      }
      
      td:nth-of-type(1) {width : 100px; }
-     td:nth-of-type(2) {width : 380px; text-align: left; }
-     td:nth-of-type(3) {width : 110px; }
-     td:nth-of-type(4) {width : 110px; }
-     td:nth-of-type(5) {width : 100px; }
+     td:nth-of-type(2) {width : 280px; text-align: left; }
+     td:nth-of-type(3) {width : 100px; }
+     td:nth-of-type(4) {width : 100px; }
+     td:nth-of-type(5) {width : 120px; }
+     td:nth-of-type(6) {width : 100px; }
      
      tr:first-child {
         background: #333;
@@ -47,9 +53,9 @@
 <body>
 	<main>
 	
-	 <%@include file = "/WEB-INF/include/menus.jsp" %>
+	 <%@include file = "/WEB-INF/include/pagingpdsmenus.jsp" %>
 	  
-	  <h2>${ menu_name } 자료실 목록 </h2>
+	  <h2>${ menu_name  } 자료실 목록 </h2>
 	  <table id="table">
 	    <tr>
 	      <td>번호</td>
@@ -61,28 +67,45 @@
 	    </tr>
 	    <tr>
 	      <td colspan="6">
-	        [<a href="/Pds/WriteForm?menu_id=${ menu_id }">새 글 추가</a>]	      
+	        [<a href="/Pds/WriteForm?menu_id=${ map.menu_id }&nowpage=${ map.nowpage }">새 글 추가</a>]	      
 	      </td>
 	    </tr>
 	    
-	    <c:forEach var="pds"  items="${ pdsList }">
+	    <c:forEach var="pds"  items="${ response.list }">
 	     <tr>
 	      <td>${ pds.idx      }</td>
 	      <td>
 	        <a href="/Pds/View?idx=${pds.idx}&menu_id=${map.menu_id}&nowpage=${map.nowpage}">
-	         ${ pds.title    }
+	         ${  pds.title    }
 	        </a> 
 	      </td>
-	      <td>${ pds.writer   }</td>
-	      <td>${ pds.filescount   }</td>
-	      <td>${ pds.regdate  }</td>
-	      <td>${ pds.hit      }</td>
+	      <td>${ pds.writer      }</td>
+	      <td>${ pds.filescount  }</td>
+	      <td>${ pds.regdate     }</td>
+	      <td>${ pds.hit         }</td>
 	     </tr> 
-	    </c:forEach>
-	 
+	    </c:forEach> 
 	    
-	  </table>
+	  </table> 
 	
+	  
+	  <!-- /Pds/List?nowpage=1&menu_id=MENU01 -->
+	  <div  id="searchbox">
+	  <form  action="/Pds/List"  method="POST">
+	  <input type="hidden" name="nowpage" value="${ map.nowpage }" />
+	  <input type="hidden" name="menu_id" value="${ map.menu_id }" />
+	  <select name="search">
+	<!--   <option value="">선택</option>  -->
+	    <option value="title">제목</option>
+	    <option value="writer">작성자</option>
+	    <option value="content">내용</option>
+	  </select>
+	  <input type="text"   name="searchtext" />
+	  <input type="submit" value="검색" />
+	  </form>
+	  </div>
+	  
+	    <%@include file="/WEB-INF/include/pagingpds.jsp" %>
 	</main>
 </body>
 </html>

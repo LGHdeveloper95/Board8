@@ -1,5 +1,6 @@
 package com.board.paging.controller;
 
+import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
 
@@ -16,8 +17,6 @@ import com.board.paging.vo.Pagination;
 import com.board.paging.vo.PagingResponse;
 import com.board.paging.vo.SearchVo;
 
-import jakarta.websocket.Session;
-
 @Controller
 @RequestMapping("/BoardPaging")
 public class BoardPagingController {
@@ -33,8 +32,7 @@ public class BoardPagingController {
 	public   ModelAndView   list(int nowpage, BoardVo  boardVo) {
 		// 메뉴 목록
 		List<MenuVo>  menuList =  menuMapper.getMenuList();
-		
-		
+			
 		//------------------------------------
 		// 게시물 목록 조회 (페이징해서)
 		//   해당하는 자료수가 1 보다 작으면
@@ -87,7 +85,7 @@ public class BoardPagingController {
 		
 		mv.addObject("searchVo",  searchVo );
 		
-		mv.addObject("response", response );
+		mv.addObject("response",  response );
 		
 		mv.setViewName("boardpaging/list");
 		return        mv;
@@ -116,62 +114,108 @@ public class BoardPagingController {
 		return        mv;
 	}
 	
+	// http://localhost:9090/BoardPaging/WriteForm?menu_id=MENU01&nowpage=1
 	@RequestMapping("/WriteForm")
-	public ModelAndView WriteForm(String nowpage, BoardVo boardVo) {
-		ModelAndView mv = new ModelAndView();
-		List<MenuVo> menuList = menuMapper.getMenuList();
+	public  ModelAndView  writeForm(BoardVo boardVo, int nowpage) {
+				
+		// 메뉴 목록 조회
+		List<MenuVo>  menuList  =  menuMapper.getMenuList();
 		
+		ModelAndView  mv  = new ModelAndView();
 		mv.addObject("menuList", menuList);
-		mv.addObject("nowpage", nowpage);
-		mv.addObject("boardVo", boardVo);
-		//System.out.println("============"+boardVo);
-		mv.setViewName("/boardpaging/write");
-		return mv;
+		mv.addObject("boardVo",  boardVo);
+		mv.addObject("nowpage",  nowpage);
+		mv.setViewName("boardpaging/write");
+		
+		return        mv;
 	}
 	
+	//  http://localhost:9090/BoardPaging/Write
+	//  nowpage : 1, menu_id=MENU01, title:aaa,	writer:sky, content:aaaa
 	@RequestMapping("/Write")
-	public ModelAndView Write(String nowpage, BoardVo boardVo) {
-		boardPagingMapper.insertBoard(boardVo);
+	public  ModelAndView  write( int nowpage, BoardVo boardVo  ) {
 		
-		String menu_id = boardVo.getMenu_id();
-		ModelAndView mv = new ModelAndView();
-		//List?nowpage=1&menu_id=MENU01
-		mv.setViewName("redirect:/BoardPaging/List?nowpage="+nowpage+"&menu_id="+menu_id);
-		return mv;
+		// 글저장
+		boardPagingMapper.insertBoard( boardVo  );
+		
+		String        menu_id  =  boardVo.getMenu_id();
+		
+		ModelAndView  mv       =  new ModelAndView();
+		String        fmt      =  "redirect:/BoardPaging/List?menu_id=%s&nowpage=%d";
+		String        loc      =  String.format(fmt, menu_id, nowpage);
+		mv.setViewName( loc );
+		return        mv;
 	}
 	
-	//http://localhost:9090/BoardPaging/Delete?idx=1007&menu_id=MENU01&nowpage=1
+	// 게시물 삭제
+	// http://localhost:9090/BoardPaging/Delete?idx=1002&menu_id=MENU01&nowpage=1
 	@RequestMapping("/Delete")
-	public ModelAndView delete(String nowpage, BoardVo boardVo) {
-		boardPagingMapper.deleteBoard(boardVo);
+	public  ModelAndView   delete(BoardVo boardVo, int nowpage) {
 		
-		ModelAndView mv = new ModelAndView();
-		mv.setViewName("redirect:/BoardPaging/List?nowpage="+nowpage+"&menu_id="+boardVo.getMenu_id());
-		return mv;
+		// 삭제
+		boardPagingMapper.deleteBoard( boardVo  );
+		
+		String        menu_id =  boardVo.getMenu_id();
+		
+		ModelAndView  mv      =  new ModelAndView();
+		String        fmt     =  "redirect:/BoardPaging/List?menu_id={0}&nowpage={1}";
+		String        loc     =  MessageFormat.format(fmt, menu_id, nowpage);
+		mv.setViewName( loc );
+		return        mv;
 	}
 	
-	///BoardPaging/UpdateForm?idx=${vo.idx}&menu_id=${vo.menu_id}&nowpage=${nowpage}
+	// http://localhost:9090/BoardPaging/UpdateForm?idx=996&menu_id=MENU01&nowpage=1
 	@RequestMapping("/UpdateForm")
-	public ModelAndView updateForm(BoardVo BoardVo, String nowpage) {
-		List<MenuVo> menuList = menuMapper.getMenuList();
-		BoardVo vo = boardPagingMapper.getBoard(BoardVo);
+	public  ModelAndView   updateForm(BoardVo boardVo, int nowpage) {
 		
-		ModelAndView mv = new ModelAndView();
-		mv.addObject("menuList", menuList);
-		mv.addObject("vo", vo);
-		mv.addObject("nowpage", nowpage);
-		mv.setViewName("/boardpaging/update");
+		List<MenuVo>  menuList = menuMapper.getMenuList();
 		
-		return mv;
+		BoardVo   vo       =  boardPagingMapper.getBoard( boardVo );   // idx
+		String    menu_id  =  boardVo.getMenu_id();
+		
+		ModelAndView  mv = new ModelAndView();
+		// 메뉴목록 조회
+		mv.addObject("menuList",  menuList);
+		// 수정할 데이터 (vo)
+		mv.addObject("vo",      vo);
+		mv.addObject("menu_id", menu_id );
+		mv.addObject("nowpage", nowpage );
+		mv.setViewName("boardpaging/update");
+		return        mv;
 	}
 	
-	@RequestMapping("Update")
-	public ModelAndView update(BoardVo boardVo, String nowpage) {
-		boardPagingMapper.updateBoard(boardVo);
+	// http://localhost:9090/BoardPaging/Update
+	// 수정용 (idx, title, content), 페이지이동 (menu_id, nowpage)
+	@RequestMapping("/Update")
+	public  ModelAndView   update( BoardVo boardVo, int nowpage  ) {
 		
-		ModelAndView mv = new ModelAndView();
-		mv.setViewName("redirect:/BoardPaging/List?nowpage="+nowpage+"&menu_id="+boardVo.getMenu_id());
+		// 자료를 수정
+		boardPagingMapper.updateBoard( boardVo  );
 		
-		return mv;
+		String        menu_id =  boardVo.getMenu_id();
+		
+		ModelAndView  mv      =  new ModelAndView();
+		String        fmt     = "redirect:/BoardPaging/List?menu_id={0}&nowpage={1}";
+		String        loc     = MessageFormat.format(fmt, menu_id, nowpage);
+		mv.setViewName(  loc );
+		
+		return        mv;
 	}
+	
+	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

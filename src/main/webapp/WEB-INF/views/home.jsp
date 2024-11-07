@@ -7,10 +7,13 @@
 <title>Insert title here</title>
 <link rel="icon" type="image/png" href="/img/favicon.png" />
 <link rel="stylesheet"  href="/css/common.css" />
+<style>
+   
+</style>
 </head>
 <body>
   <main>
-	<h2>Home</h2>
+	<h2>Home github 테스트</h2>
 	<div><a href="/Menus/WriteForm">새 메뉴 추가</a></div>
 	<div><a href="/Menus/WriteForm2">새 메뉴 추가2</a></div>
 	<div><a href="/Menus/List">메뉴 목록</a></div>		
@@ -35,7 +38,6 @@
 	<div>
 	   ${ sessionScope.login.username } 님 환영합니다<br>
 	   당신의 가입일은 ${ sessionScope.login.regdate } 입니다<br>
-	   당신의 포인트는 ${ sessionScope.login.upoint } 입니다<br>
 	   <a href="/Users/Logout">로그아웃</a>	
 	</div>
   </main>	 

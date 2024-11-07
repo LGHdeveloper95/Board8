@@ -5,12 +5,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class FilesVo {
-	private int file_num;
-	private int idx;
-	private String filename;
-	private String fileext;
-	private String sfilename;
+	private  int      file_num;
+	private  int      idx;
+	private  String   filename;
+	private  String   fileext;
+	private  String   sfilename;
 }

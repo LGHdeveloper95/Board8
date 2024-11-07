@@ -46,15 +46,31 @@
 
 </style>
 
+<script src="https://code.jquery.com/jquery.min.js"></script>
+<script>
+
+   $( function() {
+      let num = 1;
+      $('#btnAddFile').on('click', function() {
+          let tag = '<input type="file" name="upfile" '
+                  + ' class="upfile" multiple /><br>'
+          $('#tdfile').append( tag );
+          num++;       
+      })
+   } );
+ 
+</script>
+
 </head>
 <body>
   <main>  
-    <%@include file="/WEB-INF/include/pagingmenus.jsp" %>
+    <%@include file="/WEB-INF/include/pdsmenus.jsp" %>
    
-    <h2>게시글 등록(${ param.menu_id })</h2>
-    <form action="/BoardPaging/Write"  method="POST">
-    <input type="hidden"  name="menu_id"  value="${ param.menu_id }" /> 
-    <input type="hidden"  name="nowpage"  value="${ nowpage }" /> 
+    <h2>자료실 등록</h2>
+    <form action  = "/Pds/Write"  method="POST"  
+          enctype = "multipart/form-data"   >
+    <input type="hidden"  name="menu_id"  value="${ map.menu_id }" /> 
+    <input type="hidden"  name="nowpage"  value="${ map.nowpage }" /> 
     <table id="table">
      <tr>
       <td><span class="red">*</span>제목</td>
@@ -72,6 +88,13 @@
       <td><textarea name="content" maxlength="1300"></textarea></td>
      </tr>
      <tr>
+      <td>파일</td>
+      <td  id="tdfile" >
+        <input type="button"  id  ="btnAddFile" value="파일추가(최대 100M Byte)" />
+        <input type="file"    name="upfile"     class="upfile"  multiple /><br>
+      </td>
+     </tr>
+     <tr>
       <td colspan="2">
        <input type="submit" value="글 저장" />
        <input type="button" value="목록" id="goList" />
@@ -82,13 +105,26 @@
     </form>
   
     <script>
-        
+    /*
+       const  btnAddFileEl = document.querySelector('#btnAddFile');
+       const  tdfileEl     = document.querySelector('#tdfile');
+       let    tag          = '<input type="file"    name="upload"     class="upfile"  multiple /><br>' 
+       let    html         = tdfileEl.innerHTML 
+       btnAddFileEl.onclick = function() {   
+          html += tag;      
+          alert(html)
+          tdfileEl.innerHTML = html;
+	   }
+       */
+          
+       // 목록 이동 버튼
        const  goListEl = document.getElementById('goList')
        goListEl.onclick = function() {
           location.href 
-            = '/BoardPaging/List?menu_id=${menu_id}&nowpage=${nowpage}' 
+            = '/Pds/List?menu_id=${map.menu_id}&nowpage=${map.nowpage}' 
        }    
        
+       //  input validation
        const  formEl       = document.querySelector('form');
        const  titleEl      = document.querySelector('#title');
        const  writerEl     = document.querySelector('#writer');

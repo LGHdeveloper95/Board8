@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.board.pds.mapper.PdsMapper">  
+  
+  <!-- 전체 자료수 -->
+  <select  id="count">
+  
+     SELECT  COUNT(*)  AS CNT
+      FROM   BOARD
+      WHERE  MENU_ID = #{ menu_id  }
+  
+  </select>
+  
+  <!-- 
+   ${ search }      숫자 그냥 표시, 문자도 그냥 표시
+   #{ searchtext }  숫자 그냥 표시, 문자를 '' 추가해준다
+   search = title, searchtext = 파일
+    AND ${ search } LIKE  '%' || #{ searchtext } || '%'
+    AND title LIKE  '%' || '파일' || '%' 
+  -->
+   
+  <select id="getPdsList" >
+  
+  	SELECT
+  	    IDX,
+  	    TITLE,
+  	    WRITER,
+  	    -- 상관서브쿼리 ( CORELATIVE )
+  	    (  
+  	       SELECT   COUNT(*)
+  	        FROM    FILES  F
+  	        WHERE   B.IDX = F.IDX
+  	    )   FILESCOUNT,
+  	    TO_CHAR( REGDATE, 'YYYY-MM-DD') REGDATE, 
+  	    HIT
+  	 FROM
+  	    BOARD  B
+  	    
+     <where>
+         <if test="menu_id != null and menu_id !=''">
+               AND MENU_ID = #{menu_id}             
+         </if>
+         <if test="search != null and search !=''">
+               AND ${ search } LIKE  '%' || #{ searchtext } || '%'             
+         </if>
+     
+       </where>
+       
+  	 ORDER BY  
+  	    IDX  DESC 
+  	 OFFSET #{ offset } ROWS FETCH NEXT #{ recordSize } ROWS ONLY   
+  
+  </select>
+  
+  <insert  id="setWrite">
+    INSERT INTO BOARD (
+	    IDX,
+	    MENU_ID,
+	    TITLE,
+	    CONTENT,
+	    WRITER,
+	    REGDATE,
+	    HIT
+	) VALUES (
+	    ( SELECT NVL(MAX(IDX),0)+1 FROM BOARD ),
+	    #{ menu_id } , 
+	    #{ title   } ,
+	    #{ content } ,
+	    #{ writer  } ,
+	    sysdate,
+	    0
+	)
+  </insert>
+  
+  <insert  id="setFileWriter">
+  
+    <foreach  collection="fileList"  item = "file"
+       index      =  "i"
+       open       =  "INSERT ALL"
+       close      =  "SELECT * FROM DUAL"  
+       separator  =  " "  >
+       INTO FILES VALUES (  
+          ( SELECT NVL(MAX(FILE_NUM), 0) FROM FILES ) + #{i} + 1,
+          ( SELECT MAX(IDX) FROM BOARD ),
+          #{ file.filename  },
+          #{ file.fileext   },
+          #{ file.sfilename }
+       )       
+           
+    </foreach>
+  
+  </insert>
+  
+  <update id="setReadcountUpdate">
+  
+    UPDATE BOARD
+    SET    HIT  = HIT +1
+    WHERE  IDX  = #{ idx }
+  
+  </update>
+  
+  
+  <select id="getPds">
+  
+  SELECT 
+     IDX
+    ,MENU_ID
+	,TITLE
+	,CONTENT
+	,WRITER
+	,TO_CHAR(REGDATE, 'YYYY-MM-DD HH24:MI:SS') REGDATE
+	,HIT
+	
+  FROM
+   BOARD 
+  WHERE 
+    IDX = #{ idx }
+  
+  
+  </select>
+ 
+ 
+ <select id="getFileList">
+ SELECT
+    FILE_NUM,
+    IDX,
+    FILENAME,
+    FILEEXT,
+    SFILENAME
+ FROM
+    FILES
+ WHERE
+   IDX = #{ idx }
+  
+ </select>
+   
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
