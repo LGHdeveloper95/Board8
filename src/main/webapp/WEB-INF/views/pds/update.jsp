@@ -63,27 +63,59 @@
  
 /* 링크 버튼 스타일 */
   .aDelete {
-    background-color: white;
     color: black;
     padding: 3px 8px; /* 버튼 크기 조절 */
-    border: 1px solid black;
-    border-radius: 3px;
+    border: none;
     text-decoration: none; /* 밑줄 제거 */
     font-weight: bold;
     display: inline-block;
-    font-size: 0.9em; /* 글자 크기 약간 줄이기 */
     transition: color 0.3s, background-color 0.3s;
   }
 
   /* 호버 스타일 */
   .aDelete:hover {
-    background-color: red;
-    color: white;
-    border-color: white;
-        border-radius: 3px;
+    color: red;
+    border:none;
+    text-decoration: none;
+      font-weight: bold;
     
   }
 </style>
+<script type="https://code.jquery.com/jquery.min.js"></script>
+<script>
+ $( function () {
+	 
+	 $('#btnAddFile').on("click", function () {
+		let tag  = '<input type = "<input type="file"';
+		    tag +=' name="upfile" class="Upfile" multiple />';
+	})
+	 
+	 
+	 $('.aDelete').on('click', function (e) {
+         event.preventDefalt();
+         event.stopPropagation();
+		 
+		// alert('클릭');
+		
+		$.ajax({
+			url : this.href, 
+			method : 'get'
+		})
+		.done( function(result) {
+			alert(result)
+		} )
+		.fail( function(err) {
+			  console.log(srror);
+			  alert('서버오류발생:' + error)tjqjdhfbqkftod
+			  
+		} );
+	})
+	
+} )
+ 
+</script>
+
+
 
 </head>
 <body>
@@ -145,7 +177,7 @@
     <%--   <c:if test="${ login.userid == vo.writer }"> --%>
        <input  class="btn btn-dark btn-sm"
           type="submit" value="수정" />
-      <%-- </c:if>      --%>
+      <%-- </c:if>  --%>
       
        <a class="btn btn-dark btn-sm"
           href="/Pds/List?menu_id=${ map.menu_id }&nowpage=${map.nowpage}">목록</a>

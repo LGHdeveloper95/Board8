@@ -12,14 +12,14 @@
   
   </select>
   
-  <!-- 
+  <!-- 자료실 목록 조회
    ${ search }      숫자 그냥 표시, 문자도 그냥 표시
    #{ searchtext }  숫자 그냥 표시, 문자를 '' 추가해준다
    search = title, searchtext = 파일
     AND ${ search } LIKE  '%' || #{ searchtext } || '%'
     AND title LIKE  '%' || '파일' || '%' 
   -->
-   <!--  자료실 목록조회 -->
+   
   <select id="getPdsList" >
   
   	SELECT
@@ -52,8 +52,8 @@
   	 OFFSET #{ offset } ROWS FETCH NEXT #{ recordSize } ROWS ONLY   
   
   </select>
-    
-    <!-- 글저장 -->
+  
+  <!-- 게시글 저장  -->
   <insert  id="setWrite">
     INSERT INTO BOARD (
 	    IDX,
@@ -74,9 +74,9 @@
 	)
   </insert>
   
-  
-    <!-- Files정보저장  -->
+  <!--  Files 정보 저장 -->
   <insert  id="setFileWriter">
+  
     <foreach  collection="fileList"  item = "file"
        index      =  "i"
        open       =  "INSERT ALL"
@@ -89,108 +89,106 @@
           #{ file.fileext   },
           #{ file.sfilename }
        )       
+           
     </foreach>
+  
   </insert>
   
+  <!--  조회수 증가 -->
+  <update  id="setReadcountUpdate">
   
+      UPDATE   BOARD
+       SET     HIT  = HIT + 1
+       WHERE   IDX  = #{ idx } 
   
-
-  <!-- 조회수 증가 -->  
-  <update id="setReadcountUpdate">
-    UPDATE BOARD
-    SET    HIT  = HIT +1
-    WHERE  IDX  = #{ idx }
   </update>
   
+  <!-- 자료실 글 내용보기  -->
+  <select  id="getPds">
   
-    <!-- 자료실 글 내용보기 -->
-  <select id="getPds">
-  SELECT 
-     IDX
-    ,MENU_ID
-	,TITLE
-	,CONTENT
-	,WRITER
-	,TO_CHAR(REGDATE, 'YYYY-MM-DD HH24:MI:SS') REGDATE
-	,HIT
-	
-  FROM
-   BOARD 
-  WHERE 
-    IDX = #{ idx }
+    SELECT
+       IDX,
+       MENU_ID,
+       TITLE,
+       CONTENT,
+       WRITER,
+       TO_CHAR(REGDATE, 'YYYY-MM-DD HH24:MI:SS')  REGDATE,
+       HIT         
+     FROM   
+       BOARD
+     WHERE
+       IDX  =  #{ idx } 
+  
   </select>
- 
- 
- 
- <!-- 자료실 파일 목록 가져오기 -->
- <select id="getFileList">
- SELECT
-    FILE_NUM,
-    IDX,
-    FILENAME,
-    FILEEXT,
-    SFILENAME
- FROM
-    FILES
- WHERE
-   IDX = #{ idx }
   
- </select>
-   
-   
-   <!-- 자료실 수정 -->
- <update id="setUpdate">
-   UPDATE BOARD
-   SET    TITLE = #{ title }
-         ,CONTENT = # { content }
-   WHERE  IDX = #{ idx }
- </update>
+  <!--  자료실 파일 목록 가져오기 -->
+  <select  id="getFileList">
+  
+     SELECT
+	    FILE_NUM,
+	    IDX,
+	    FILENAME,
+	    FILEEXT,
+	    SFILENAME
+	  FROM
+	    FILES
+	  WHERE
+	    IDX = #{ idx  }       
+  
+  </select>
+  
+  <!-- setUpdate 자료실 정보 수정-->
+  <update  id = "setUpdate">
+     
+     UPDATE   BOARD
+     SET      TITLE    =  #{ title    }
+            , CONTENT  =  #{ content  } 
+     WHERE    IDX      =  #{ idx      }
+  
+  </update>
+  
+  <!-- file_num 으로 FilesVo 조회 -->
+  <select  id="getFileInfo">
+  
+    SELECT
+        FILE_NUM,
+        IDX,
+        FILENAME,
+        FILEEXT,
+        SFILENAME 
+     FROM   
+        FILES 
+     WHERE
+        FILE_NUM = #{ file_num }     
+  
+  </select>
+  
+  <!-- 수정을 위한 파일 삭제  -->
+  <delete  id="deleteUploadFileNum">
+  	
+  	DELETE
+  	  FROM   FILES
+  	  WHERE  FILE_NUM = #{ file_num }  	  
+  	  
+  </delete>
+  
+  <!-- idx 에 해당하는 Files 정보를 삭제 -->
+  <delete  id="deleteUploadFile">
+  
+    DELETE  
+     FROM   FILES
+     WHERE  IDX   =  #{ idx } 
+  
+  </delete>
  
+  <!-- idx 에 해당하는 board 정보를 삭제 -->
+  <delete  id="setDelete">
+  
+    DELETE  
+     FROM   BOARD
+     WHERE  IDX   =  #{ idx } 
+  
+  </delete>
  
- <select id="getFileInfo">
- 
-  SELECT
-       FILE_NUM
-       ,IDX
-       ,FILENAME
-       ,FILEEXT
-       ,SFILENAME
-  FROM
-    FILES
-  WHERE
-     FILE_NUM = #{ file_num }
- 
- </select>
-   
-  <insert id="updateFileWriter">
-     <foreach collection="fileList" item="file"
-       index="i" open="INSERT ALL" close="SELECT * FROM DUAL" separator=" ">
-	     INTO FILES VALUES (
-		      -- GET_FILENUM()
-		      (SELECT NVL(MAX(FILE_NUM),0) FROM FILES) + #{i} + 1
-		    , #{ idx }
-		    , #{ file.filename }
-		    , #{ file.fileext }
-		    , #{ file.sfilename }
-		)
-     </foreach>
-   </insert> 
-   
+  
 </mapper>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

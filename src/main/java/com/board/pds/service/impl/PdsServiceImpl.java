@@ -70,46 +70,70 @@ public class PdsServiceImpl implements  PdsService {
 
 	@Override
 	public void setReadcountUpdate(HashMap<String, Object> map) {
+		
 		pdsMapper.setReadcountUpdate( map );
+		
 	}
 
 	@Override
 	public PdsVo getPds(HashMap<String, Object> map) {
-		PdsVo  pdsVo = pdsMapper.getPds( map ); 
-		return pdsVo;
+		
+		PdsVo   pdsVo   =  pdsMapper.getPds( map ); 
+		return  pdsVo;
+		
 	}
 
 	@Override
 	public List<FilesVo> getFileList(HashMap<String, Object> map) {
-		List<FilesVo> fileList = pdsMapper.getFileList(map);
-		return fileList;
+		List<FilesVo>  fileList = pdsMapper.getFileList(map);
+		return         fileList;
 	}
 
 	@Override
-	public void setUpdate(HashMap<String, Object> map,
-			                  MultipartFile[] uploadfiles) {
+	public void setUpdate(
+			HashMap<String, Object>   map, 
+			MultipartFile[]           uploadfiles) {
+				
+		// 업로드된 파일경로 -> map
+		map.put("uploadPath" , uploadPath );
 		
-		// 업로드된 파일 경로 -> map   /Users/leegh/dev/data
-		map.put("uploadPath", uploadPath );
-		//업로드된 파일을 폴더에 저장 -> 저장된 정보 -> map
-		PdsFile.save(map, uploadfiles);
-		// Files table 정보저장 <- map 정보이용
-		List<FilesVo> fileList = (List<FilesVo>) map.get("fileList");
-		if( fileList.size() > 0 )
-			pdsMapper.setFileWriter(map);
-		// Board 정보저장
-		pdsMapper.setUpdate(map);
+		// 업로드된 파일을 폴더에 저장 -> 저장된 정보 -> map
+		PdsFile.save( map, uploadfiles);		
 		
+		// Files table 정보저장 <- map정보를 이용해서
+		List<FilesVo>  fileList  =  (List<FilesVo>) map.get("fileList");
+		if( fileList.size() > 0  )
+			pdsMapper.setFileWriter( map );
+		
+		// Board table 정보를 저장
+		pdsMapper.setUpdate( map  );
+		
+				
 	}
 
 	@Override
 	public FilesVo getFileInfo(Long file_num) {
-		FilesVo fileVo = pdsMapper.getFileInfo(file_num);
-		return fileVo;
+		FilesVo  filesVo  = pdsMapper.getFileInfo( file_num );				
+		return   filesVo;
 	}
 
+	@Override
+	public void setDelete(HashMap<String, Object> map) {
+		
+		// 1. 해당 파일 정보 조회
+		List<FilesVo>  fileList = pdsMapper.getFileList( map );
+		
+		// 2. idx 에 해당하는 실제 파일들을 삭제
+		PdsFile.delete(uploadPath, fileList);
+		
+		// 3. idx  에 해당하는 Files table 정보 삭제
+		pdsMapper.deleteUploadFile( map );
+		
+		// 4. idx  에 해당하는 board table 정보 삭제
+		pdsMapper.setDelete(  map );
+		
+	}
+	
+	
+
 }
-
-
-
-
